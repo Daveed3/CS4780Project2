@@ -9,6 +9,6 @@ The Cryptography project involves making use of the RSA Encryption algorithm. 3 
 
 ## Running the Program
 Through the terminal (or wherever you can insert arguments) run the following commands 
-1) Run "java RSAGenKey <lengthOfKey>" or "java RSAGenKey <p> <q> <e>" to generate the public and private keys
+1) Run "java RSAGenKey <lengthOfKey>" or "java RSAGenKey <'p> <'q> <'e>" to generate the public and private keys
 2) Run "java RSAEncrypt <plaintextFile> <publicKeyFile>" to encrypt the plaintextFile
 3) Run "java RSADecrpyt <encryptedFile> <privateKeyFile>" to decrypt the message
