@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.Array;
+import java.math.BigInteger;
+import java.util.Random;
 
 //RSAGenKey.java : Generates a private key
 
@@ -23,24 +25,26 @@ c:\> java RSA 6551 4733 8311
 The same files pub_key.txt and pri_key.txt should be created.
  */
 
+// run it as "java RSAGenKey <p> <q> <e>" or "java RSAGenKey <length>"
+
 public class RSAGenKey {
 
-	public static void calcAndKeys(int p, int q, int e) {	
+	public static void calcAndKeys(BigInteger p, BigInteger q, BigInteger e) {	
 		String[] publicKeyStrs = {"pub_key.txt", "en"};
 		String[] privateKeyStrs = {"pri_key.txt", "dn"};
 		
 		// calculate n
-		int n = p * q;
+		BigInteger n = p.multiply(q);
 		
 		// calculate phi(n)
-		int phi = (p-1) * (q-1);
+		BigInteger phi = (p.subtract(new BigInteger("1"))).multiply(q.subtract(new BigInteger("1")));
 		
 		// calculate d
-		int d = calcInverse(e, phi) % phi;
+		BigInteger d = calcInverse(e, phi).mod(phi);
 		
 		// Key pairs
-		int[] en = {e, n};
-		int[] dn = {d, n};
+		BigInteger[] en = {e, n};
+		BigInteger[] dn = {d, n};
 		
 		// publish public key KU={e,n}
 		createFile(publicKeyStrs[0], publicKeyStrs[1], en);
@@ -109,24 +113,24 @@ public class RSAGenKey {
 		return true;
 	}
 	
-	public static int calcInverse(int num, int mod) {
+	public static BigInteger calcInverse(BigInteger num, BigInteger mod) {
 		// find gcd(mod, num) = 1
 		
 		// Use Extended Euclidean Algorithm 
 		
 		// Initialize vars
-		int q, r1, r2, r, t1, t2, t;
+		BigInteger q, r1, r2, r, t1, t2, t;
 		r1 = mod;
 		r2 = num;
-		t1 = 0;
-		t2 = 1;
+		t1 = new BigInteger("0");
+		t2 = new BigInteger("1");
 		
 		// Do Extended Euclidean algorithm calculations
-		while (r2 > 0) {
+		while (r2.compareTo(new BigInteger("0")) == 1) {
 			// Short calculations
-			q = r1/r2;
-			r = r1%r2;
-			t = t1 - q*t2;
+			q = r1.divide(r2);
+			r = r1.mod(r2);
+			t = t1.subtract(q.multiply(t2));
 			
 			// Tested to see if rows were good
 //			printEEARow(q, r1, r2, r, t1, t2, t);
@@ -138,8 +142,8 @@ public class RSAGenKey {
 			t2 = t;
 		}
 		
-		if (t1 < 0) {
-			t1 = t1 + mod;
+		if (t1.compareTo(new BigInteger("0")) == -1) {
+			t1 = t1.add(mod);
 		}
 		
 		return t1;
@@ -152,14 +156,14 @@ public class RSAGenKey {
 		System.out.println();
 	}
 	
-	public static void createFile(String fileName, String keyType, int[] key) {
+	public static void createFile(String fileName, String keyType, BigInteger[] key) {
 		try {
 			File file = new File(fileName);
 			file.createNewFile();
 			
 			FileWriter writer = new FileWriter(fileName);
-			writer.write(keyType.charAt(0) + " = " + key[0] + 
-					"\n" + keyType.charAt(1) + " = " + key[1]);
+			writer.write(keyType.charAt(0) + " = " + key[0].intValue() + 
+					"\n" + keyType.charAt(1) + " = " + key[1].intValue());
 			writer.close();
 			System.out.println("File " + fileName + " created");
 			
@@ -190,16 +194,16 @@ public class RSAGenKey {
 			}
 			
 			// Do args[0] / 3 for a p, a q, an e
-			int p = findRandPrime(bit);
-			int q = findRandPrime(bit);
-			int e = findRandPrime(bit);
+			BigInteger p = BigInteger.probablePrime(bit, new Random());
+			BigInteger q = BigInteger.probablePrime(bit, new Random());
+			BigInteger e = BigInteger.probablePrime(bit, new Random());
 						
 			calcAndKeys(p, q, e);
 		} else if (args.length == 3) {
 			// Do function where it took in 3 values p, q, and e
-			int p = Integer.parseInt(args[0]);
-			int q = Integer.parseInt(args[1]);
-			int e = Integer.parseInt(args[2]);
+			BigInteger p = new BigInteger(args[0]);
+			BigInteger q = new BigInteger(args[1]);
+			BigInteger e = new BigInteger(args[2]);
 
 			calcAndKeys(p, q, e);
 		} else {
